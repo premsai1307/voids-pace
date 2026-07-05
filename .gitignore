@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+backend/voidspace.db
+backend/voidspace.db-journal
+backend/voidspace.db-wal
+backend/voidspace.db-shm
+backend/server.log
+backend/.env
+backend/uploads/*
+!backend/uploads/.gitkeep
+.DS_Store

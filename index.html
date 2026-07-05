@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>VOID·SPACE — 3D Digital Asset Management</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --void:    #050816;
+  --deep:    #0a0f2e;
+  --panel:   #0d1333;
+  --surface: #111840;
+  --border:  rgba(0,212,255,.12);
+  --border2: rgba(124,58,237,.15);
+  --cyan:    #00d4ff;
+  --violet:  #7c3aed;
+  --ember:   #ff6b35;
+  --lime:    #39ff14;
+  --text:    #e8eeff;
+  --muted:   #6b7db3;
+  --radius:  10px;
+  --glow-c:  0 0 24px rgba(0,212,255,.35);
+  --glow-v:  0 0 24px rgba(124,58,237,.35);
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  font-family:'Inter',sans-serif;
+  background:var(--void);
+  color:var(--text);
+  min-height:100vh;
+  font-size:14px;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+
+/* ─── STARFIELD ─── */
+#stars {
+  position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden;
+}
+.star {
+  position:absolute; border-radius:50%;
+  background:white; opacity:0;
+  animation:twinkle var(--dur) var(--delay) infinite;
+}
+@keyframes twinkle {
+  0%,100%{opacity:0} 50%{opacity:var(--op)}
+}
+
+/* ─── LOGIN ─── */
+#login-screen {
+  position:relative; z-index:10;
+  min-height:100vh;
+  display:grid; grid-template-columns:1fr 1fr;
+}
+
+.login-left {
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  padding:60px; position:relative; overflow:hidden;
+  background:linear-gradient(135deg, var(--deep) 0%, #0a0520 100%);
+}
+
+#hero-canvas {
+  width:100%; height:100%;
+  position:absolute; inset:0;
+  opacity:.9;
+}
+
+.login-left-content {
+  position:relative; z-index:2; text-align:center;
+}
+
+.brand-logo {
+  font-family:'Syne',sans-serif;
+  font-size:52px; font-weight:800;
+  letter-spacing:-.02em;
+  line-height:1;
+  margin-bottom:10px;
+}
+.brand-logo .v { color:var(--cyan); text-shadow: var(--glow-c); }
+.brand-logo .s { color:white; }
+
+.brand-tagline {
+  font-size:11px; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--muted); margin-bottom:44px;
+}
+
+.feature-pills { display:flex; flex-direction:column; gap:10px; align-items:center; }
+.fpill {
+  background:rgba(0,212,255,.06);
+  border:1px solid var(--border);
+  border-radius:30px;
+  padding:8px 20px;
+  font-size:12px; color:rgba(232,238,255,.7);
+  display:flex; align-items:center; gap:8px;
+}
+.fpill-dot { width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan); }
+
+.login-right {
+  display:flex; align-items:center; justify-content:center;
+  padding:60px;
+  background:rgba(5,8,22,.85);
+  backdrop-filter:blur(20px);
+  border-left:1px solid var(--border);
+}
+
+.login-box { width:100%; max-width:360px; }
+
+/* Role tabs */
+.role-tabs {
+  display:flex; gap:6px;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  border-radius:var(--radius); padding:4px;
+  margin-bottom:28px;
+}
+.rtab {
+  flex:1; padding:9px;
+  border:none; background:transparent;
+  border-radius:7px; cursor:pointer;
+  font-family:'Inter',sans-serif; font-size:12px; font-weight:500;
+  color:var(--muted); transition:all .2s;
+}
+.rtab.active {
+  background:rgba(0,212,255,.1);
+  color:var(--cyan);
+  box-shadow:inset 0 0 0 1px rgba(0,212,255,.2);
+}
+
+.login-title {
+  font-family:'Syne',sans-serif;
+  font-size:26px; font-weight:700;
+  margin-bottom:4px; color:white;
+}
+.login-sub { color:var(--muted); font-size:13px; margin-bottom:24px; }
+
+/* Google button */
+.btn-google {
+  width:100%; display:flex; align-items:center; justify-content:center;
+  gap:12px; padding:13px 16px;
+  background:white; border:none;
+  border-radius:var(--radius);
+  font-family:'Inter',sans-serif; font-size:14px; font-weight:500;
+  color:#202124; cursor:pointer;
+  transition:all .2s; box-shadow:0 2px 12px rgba(0,0,0,.4);
+}
+.btn-google:hover { box-shadow:0 4px 20px rgba(0,212,255,.25); transform:translateY(-1px); }
+.btn-google:active { transform:translateY(0); }
+.g-icon { width:20px; height:20px; flex-shrink:0; }
+
+.or-divider {
+  display:flex; align-items:center; gap:12px;
+  margin:18px 0; color:var(--muted); font-size:11px;
+}
+.or-divider::before,.or-divider::after {
+  content:''; flex:1; height:1px;
+  background:linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+.form-group { margin-bottom:14px; }
+.form-group label {
+  display:block; font-size:11px; font-weight:600;
+  letter-spacing:.08em; text-transform:uppercase;
+  color:var(--muted); margin-bottom:6px;
+}
+.form-group input {
+  width:100%; padding:11px 14px;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  font-family:'Inter',sans-serif; font-size:13px;
+  color:var(--text); outline:none; transition:border-color .2s;
+}
+.form-group input:focus { border-color:var(--cyan); box-shadow:0 0 0 3px rgba(0,212,255,.08); }
+.form-group input::placeholder { color:var(--muted); }
+
+.btn-primary {
+  width:100%; padding:13px;
+  background:linear-gradient(135deg, var(--cyan) 0%, var(--violet) 100%);
+  border:none; border-radius:var(--radius);
+  font-family:'Syne',sans-serif; font-size:14px; font-weight:700;
+  color:white; cursor:pointer; letter-spacing:.04em;
+  transition:all .2s;
+  box-shadow:0 4px 20px rgba(0,212,255,.2);
+}
+.btn-primary:hover { box-shadow:0 6px 28px rgba(0,212,255,.4); transform:translateY(-1px); }
+
+.hint-box {
+  margin-top:14px; padding:10px 14px;
+  background:rgba(0,212,255,.04);
+  border-left:2px solid var(--cyan);
+  border-radius:0 6px 6px 0;
+  font-size:11px; color:var(--muted);
+}
+.hint-box strong { color:var(--cyan); }
+
+.login-err { color:#ff4d4d; font-size:12px; margin-top:8px; display:none; }
+
+/* ─── GOOGLE POPUP ─── */
+.g-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(5,8,22,.75); backdrop-filter:blur(8px);
+  z-index:500; align-items:center; justify-content:center;
+}
+.g-overlay.open { display:flex; }
+.g-popup {
+  background:white; border-radius:18px;
+  width:360px; overflow:hidden;
+  box-shadow:0 30px 80px rgba(0,0,0,.6);
+  animation:gPop .2s ease;
+}
+@keyframes gPop { from{transform:scale(.88);opacity:0} to{transform:scale(1);opacity:1} }
+.g-head {
+  padding:26px 24px 18px; text-align:center;
+  border-bottom:1px solid #f0f0f0;
+}
+.g-head-logo { display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:16px; }
+.g-head-logo span { font-size:18px;font-weight:500;color:#202124;letter-spacing:-.3px; }
+.g-head h3 { font-size:20px;font-weight:400;color:#202124;margin-bottom:4px; }
+.g-head p  { font-size:12px;color:#5f6368; }
+.g-accounts { padding:8px 0; }
+.g-acc {
+  display:flex; align-items:center; gap:14px;
+  padding:12px 22px; cursor:pointer; transition:background .15s;
+}
+.g-acc:hover { background:#f8f9fa; }
+.g-av {
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:white;flex-shrink:0;
+}
+.g-acc-name  { font-size:14px;font-weight:500;color:#202124; }
+.g-acc-email { font-size:12px;color:#5f6368; }
+.g-add {
+  display:flex;align-items:center;gap:14px;
+  padding:12px 22px;cursor:pointer;
+  border-top:1px solid #f0f0f0;
+  transition:background .15s;
+}
+.g-add:hover { background:#f8f9fa; }
+.g-add-ic {
+  width:40px;height:40px;border-radius:50%;background:#f1f3f4;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;color:#5f6368;
+}
+.g-add span { font-size:13px;color:#1a73e8;font-weight:500; }
+.g-foot { padding:12px 22px;text-align:right;border-top:1px solid #f0f0f0; }
+.g-cancel {
+  border:none;background:none;
+  color:#1a73e8;font-size:13px;font-weight:500;
+  cursor:pointer;padding:6px 14px;border-radius:6px;font-family:'Inter',sans-serif;
+  transition:background .15s;
+}
+.g-cancel:hover { background:rgba(26,115,232,.08); }
+.g-loading { padding:48px;text-align:center;display:none; }
+.g-loading.show { display:block; }
+.g-spin {
+  width:40px;height:40px;margin:0 auto 16px;
+  border:3px solid #f0f0f0; border-top-color:#4285f4;
+  border-radius:50%; animation:spin .8s linear infinite;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+.g-spin-txt { font-size:14px;color:#5f6368; }
+
+/* ─── APP SHELL ─── */
+#app { display:none; min-height:100vh; position:relative; z-index:10; }
+
+/* Sidebar */
+.sidebar {
+  position:fixed; left:0; top:0; bottom:0; width:220px;
+  background:var(--deep);
+  border-right:1px solid var(--border);
+  display:flex; flex-direction:column;
+  z-index:50;
+}
+.sb-brand {
+  padding:22px 20px 18px;
+  border-bottom:1px solid var(--border);
+}
+.sb-logo {
+  font-family:'Syne',sans-serif;
+  font-size:20px; font-weight:800;
+  letter-spacing:-.02em;
+}
+.sb-logo .v{color:var(--cyan);} .sb-logo .s{color:white;}
+.sb-role {
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);margin-top:4px;
+}
+
+.sb-nav { flex:1; padding:12px 10px; overflow-y:auto; }
+.sb-section-label {
+  font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);padding:10px 10px 6px;
+}
+.sb-item {
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px; border-radius:8px;
+  cursor:pointer; color:var(--muted); font-size:13px;
+  transition:all .15s; margin-bottom:2px; border:none;
+  background:transparent; width:100%; text-align:left;
+  font-family:'Inter',sans-serif;
+}
+.sb-item:hover { background:rgba(0,212,255,.06); color:var(--text); }
+.sb-item.active { background:rgba(0,212,255,.1); color:var(--cyan); }
+.sb-item .icon { font-size:16px; width:20px; text-align:center; flex-shrink:0; }
+.sb-badge {
+  margin-left:auto; background:var(--ember);
+  color:white; font-size:10px; font-weight:700;
+  padding:2px 7px; border-radius:20px;
+}
+.sb-badge.cyan { background:var(--cyan); color:var(--void); }
+
+.sb-user {
+  padding:14px 16px;
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.sb-avatar {
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:white;flex-shrink:0;
+}
+.sb-user-info { flex:1;min-width:0; }
+.sb-user-name { font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.sb-user-role { font-size:10px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase; }
+.sb-logout {
+  background:none;border:none;cursor:pointer;color:var(--muted);
+  font-size:16px;transition:color .15s;padding:4px;
+}
+.sb-logout:hover { color:var(--ember); }
+
+/* Main area */
+.main {
+  margin-left:220px;
+  min-height:100vh;
+  padding:28px 32px;
+}
+
+/* Page */
+.page { display:none; }
+.page.active { display:block; }
+
+/* Page header */
+.ph {
+  display:flex;align-items:flex-end;
+  justify-content:space-between;
+  margin-bottom:26px;
+}
+.ph-title {
+  font-family:'Syne',sans-serif;
+  font-size:28px;font-weight:700;color:white;
+}
+.ph-title span { color:var(--cyan); }
+.ph-sub { font-size:12px;color:var(--muted);margin-top:3px; }
+
+/* Stat cards */
+.stats { display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px; }
+.stat-c {
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:18px 20px;
+  position:relative;overflow:hidden;
+  transition:transform .2s;
+}
+.stat-c:hover { transform:translateY(-2px); }
+.stat-c::before {
+  content:''; position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--accent-color,var(--cyan));
+}
+.stat-n {
+  font-family:'Syne',sans-serif;
+  font-size:32px;font-weight:700;color:white;line-height:1;
+  margin-bottom:4px;
+}
+.stat-l { font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em; }
+
+/* Buttons */
+.btn-c {
+  padding:10px 20px;
+  background:linear-gradient(135deg,var(--cyan),#00a8d4);
+  border:none;border-radius:var(--radius);
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:600;
+  color:var(--void);cursor:pointer;letter-spacing:.03em;
+  transition:all .2s;box-shadow:0 4px 16px rgba(0,212,255,.2);
+}
+.btn-c:hover { box-shadow:0 6px 24px rgba(0,212,255,.4);transform:translateY(-1px); }
+
+.btn-o {
+  padding:9px 18px;
+  background:transparent;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  font-family:'Inter',sans-serif;font-size:13px;
+  color:var(--text);cursor:pointer;
+  transition:all .2s;
+}
+.btn-o:hover { border-color:var(--cyan);color:var(--cyan); }
+
+.btn-sm { padding:5px 12px;font-size:12px;border-radius:6px;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;transition:all .15s; }
+.btn-approve { background:rgba(57,255,20,.1);color:var(--lime); }
+.btn-approve:hover { background:var(--lime);color:var(--void); }
+.btn-reject  { background:rgba(255,77,77,.1);color:#ff4d4d; }
+.btn-reject:hover  { background:#ff4d4d;color:white; }
+.btn-revise  { background:rgba(255,107,53,.1);color:var(--ember); }
+.btn-revise:hover  { background:var(--ember);color:white; }
+
+/* Filter bar */
+.fbar { display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:20px; }
+.fbar input {
+  flex:1;min-width:200px;padding:8px 14px;
+  background:rgba(255,255,255,.04);border:1px solid var(--border);
+  border-radius:20px;font-family:'Inter',sans-serif;font-size:13px;
+  color:var(--text);outline:none;
+}
+.fbar input:focus { border-color:var(--cyan); }
+.fbar input::placeholder { color:var(--muted); }
+.fchip {
+  padding:6px 14px;border-radius:20px;
+  border:1px solid var(--border);background:transparent;
+  font-size:12px;color:var(--muted);cursor:pointer;
+  font-family:'Inter',sans-serif;transition:all .15s;
+}
+.fchip:hover,.fchip.active { border-color:var(--cyan);color:var(--cyan);background:rgba(0,212,255,.06); }
+
+/* Status pills */
+.spill {
+  display:inline-block;font-size:10px;font-weight:700;
+  padding:3px 10px;border-radius:20px;letter-spacing:.05em;text-transform:uppercase;
+}
+.sp-approved { background:rgba(57,255,20,.1);color:var(--lime); }
+.sp-pending  { background:rgba(255,107,53,.12);color:var(--ember); }
+.sp-rejected { background:rgba(255,77,77,.1);color:#ff4d4d; }
+.sp-revision { background:rgba(124,58,237,.15);color:#a78bfa; }
+.sp-draft    { background:rgba(107,125,179,.1);color:var(--muted); }
+
+/* Asset grid */
+.agrid { display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px; }
+
+.acard {
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;cursor:pointer;
+  transition:all .2s;
+}
+.acard:hover {
+  border-color:rgba(0,212,255,.3);
+  box-shadow:0 8px 32px rgba(0,212,255,.1);
+  transform:translateY(-3px);
+}
+
+.a-viewer {
+  width:100%;height:160px;
+  position:relative;overflow:hidden;
+  background:var(--void);
+}
+.a-viewer canvas { width:100%!important;height:100%!important; }
+.a-viewer-placeholder {
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:8px;
+  background:linear-gradient(135deg,#070d24,#0d1440);
+}
+.a3d-icon { font-size:44px; filter:drop-shadow(0 0 12px rgba(0,212,255,.5)); }
+.a3d-label { font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace; }
+
+.status-abs {
+  position:absolute;top:10px;right:10px;
+}
+.a-body { padding:14px; }
+.a-name { font-weight:600;font-size:14px;color:white;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.a-meta { font-size:11px;color:var(--muted);margin-bottom:10px; }
+.a-tags { display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px; }
+.atag { font-size:10px;padding:2px 8px;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.2);border-radius:20px;color:#a78bfa; }
+.a-foot {
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:10px;border-top:1px solid var(--border);
+}
+.a-creator { display:flex;align-items:center;gap:7px; }
+.a-mini-av {
+  width:22px;height:22px;border-radius:50%;
+  background:var(--violet);
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;color:white;
+}
+.a-creator-n { font-size:11px;color:var(--muted); }
+
+/* Review list */
+.rlist { display:flex;flex-direction:column;gap:12px; }
+.ritem {
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:var(--radius);
+  display:flex;align-items:stretch;overflow:hidden;
+  transition:all .2s;
+}
+.ritem:hover { border-color:rgba(0,212,255,.25); }
+.r-thumb {
+  width:80px;min-width:80px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--void);font-size:28px;
+}
+.r-info { padding:14px 18px;flex:1; }
+.r-name { font-weight:600;font-size:15px;color:white;margin-bottom:4px; }
+.r-detail { font-size:12px;color:var(--muted);margin-bottom:8px; }
+.r-actions {
+  display:flex;flex-direction:column;gap:6px;
+  padding:14px;border-left:1px solid var(--border);
+  justify-content:center;min-width:130px;
+}
+
+/* Tool integrations panel */
+.tools-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px; }
+.tool-card {
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:var(--radius);padding:22px;
+  transition:all .2s;
+}
+.tool-card:hover { border-color:rgba(124,58,237,.3);box-shadow:var(--glow-v); }
+.tc-head { display:flex;align-items:center;gap:14px;margin-bottom:14px; }
+.tc-icon {
+  width:46px;height:46px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;
+}
+.tc-name { font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:white;margin-bottom:2px; }
+.tc-type { font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em; }
+.tc-desc { font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px; }
+.tc-chips { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px; }
+.tc-chip { font-size:10px;padding:3px 9px;border-radius:20px;font-family:'JetBrains Mono',monospace; }
+.chip-free { background:rgba(57,255,20,.08);border:1px solid rgba(57,255,20,.2);color:var(--lime); }
+.chip-api  { background:rgba(0,212,255,.08);border:1px solid var(--border);color:var(--cyan); }
+.chip-open { background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.2);color:#a78bfa; }
+.tc-btn { width:100%;padding:9px;font-size:12px; }
+
+/* API Docs */
+.api-hero {
+  background:linear-gradient(135deg,var(--panel) 0%,#130a2e 100%);
+  border:1px solid var(--border2);
+  border-radius:14px;padding:32px 36px;
+  margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;
+  position:relative;overflow:hidden;
+}
+.api-hero::before {
+  content:'';position:absolute;top:-60px;right:80px;
+  width:280px;height:280px;border-radius:50%;
+  background:radial-gradient(circle,rgba(124,58,237,.15) 0%,transparent 70%);
+}
+.api-hero-text { position:relative;z-index:1; }
+.api-hero h2 { font-family:'Syne',sans-serif;font-size:26px;font-weight:700;color:white;margin-bottom:6px; }
+.api-hero p  { color:var(--muted);font-size:13px;max-width:400px; }
+.api-key-panel {
+  background:rgba(0,0,0,.4);border:1px solid var(--border);
+  border-radius:10px;padding:14px 18px;
+  position:relative;z-index:1;
+}
+.akey-label { font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px; }
+.akey-val { display:flex;align-items:center;gap:10px; }
+.akey-str { font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cyan);letter-spacing:.04em; }
+.copy-btn {
+  background:rgba(0,212,255,.1);border:1px solid var(--border);
+  border-radius:5px;padding:4px 10px;cursor:pointer;
+  color:var(--cyan);font-size:11px;font-family:'Inter',sans-serif;font-weight:500;
+  transition:all .15s;
+}
+.copy-btn:hover { background:rgba(0,212,255,.2); }
+.test-btn { margin-top:10px; }
+
+.ep-section { margin-bottom:22px; }
+.ep-heading {
+  font-family:'Syne',sans-serif;font-size:18px;font-weight:600;color:white;
+  margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);
+}
+.ep-card {
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:var(--radius);margin-bottom:10px;overflow:hidden;
+}
+.ep-header {
+  padding:13px 18px;display:flex;align-items:center;gap:12px;
+  cursor:pointer;transition:background .15s;
+}
+.ep-header:hover { background:rgba(255,255,255,.02); }
+.meth {
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;
+  padding:3px 9px;border-radius:4px;min-width:50px;text-align:center;flex-shrink:0;
+}
+.GET    { background:rgba(57,255,20,.1);color:var(--lime); }
+.POST   { background:rgba(0,212,255,.1);color:var(--cyan); }
+.PUT    { background:rgba(255,107,53,.1);color:var(--ember); }
+.DELETE { background:rgba(255,77,77,.1);color:#ff4d4d; }
+.ep-path { font-family:'JetBrains Mono',monospace;font-size:12px;color:white;flex:1; }
+.ep-desc { font-size:11px;color:var(--muted); }
+.ep-chevron { color:var(--muted);transition:transform .2s; }
+.ep-header.open .ep-chevron { transform:rotate(180deg); }
+
+.ep-body { display:none;padding:16px 20px 20px;border-top:1px solid var(--border); }
+.ep-body.open { display:block; }
+
+.param-tbl { width:100%;border-collapse:collapse;font-size:12px;margin-top:10px; }
+.param-tbl th {
+  text-align:left;padding:7px 12px;
+  background:rgba(255,255,255,.03);color:var(--muted);
+  font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;
+}
+.param-tbl td { padding:7px 12px;border-bottom:1px solid var(--border); }
+.pn { font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cyan); }
+.pt { color:var(--muted); }
+.pr { color:#ff4d4d;font-size:10px;font-weight:700; }
+
+.code-block {
+  background:#020612;border:1px solid var(--border);
+  border-radius:8px;padding:16px 18px;margin-top:12px;overflow-x:auto;
+}
+.code-block pre { font-family:'JetBrains Mono',monospace;font-size:11px;color:#c9d1d9;white-space:pre; }
+.kw  { color:var(--cyan); }
+.str { color:#a5d6ff; }
+.num { color:#79c0ff; }
+.com { color:#464f5a; }
+.key { color:#ff7b72; }
+
+/* Upload Modal */
+.modal-ov {
+  display:none;position:fixed;inset:0;
+  background:rgba(5,8,22,.8);backdrop-filter:blur(12px);
+  z-index:200;align-items:center;justify-content:center;
+}
+.modal-ov.open { display:flex; }
+.modal {
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:14px;width:100%;max-width:520px;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:0 24px 80px rgba(0,0,0,.6);
+}
+.modal-h {
+  padding:22px 26px 0;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.modal-title { font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:white; }
+.modal-x {
+  width:30px;height:30px;border-radius:50%;border:none;
+  background:rgba(255,255,255,.06);cursor:pointer;
+  font-size:18px;color:var(--muted);display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.modal-x:hover { background:rgba(255,77,77,.2);color:#ff4d4d; }
+.modal-b { padding:18px 26px 26px; }
+.upload-z {
+  border:2px dashed var(--border);border-radius:10px;
+  padding:36px;text-align:center;cursor:pointer;
+  transition:border-color .2s;margin-bottom:16px;
+  background:rgba(0,212,255,.02);
+}
+.upload-z:hover { border-color:var(--cyan);background:rgba(0,212,255,.04); }
+.uz-icon { font-size:36px;margin-bottom:8px; }
+.uz-text { color:var(--muted);font-size:12px; }
+.uz-text strong { color:var(--cyan); }
+.modal-actions { display:flex;gap:10px;margin-top:10px; }
+
+/* 3D Viewer Modal */
+.viewer-modal {
+  background:var(--deep);border:1px solid var(--border);
+  border-radius:14px;width:100%;max-width:700px;
+  max-height:90vh;overflow:hidden;
+  box-shadow:0 24px 80px rgba(0,212,255,.1);
+}
+.vm-head { padding:16px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border); }
+.vm-canvas-wrap { width:100%;height:400px;background:var(--void); }
+#viewer-canvas { width:100%;height:100%; }
+.vm-info { padding:16px 22px; }
+.vm-btns { display:flex;gap:10px;padding:0 22px 18px; }
+
+/* Toast */
+.toast {
+  position:fixed;bottom:24px;right:24px;
+  background:var(--panel);border:1px solid var(--border);
+  color:var(--text);padding:12px 20px;border-radius:10px;
+  font-size:13px;font-weight:500;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+  transform:translateY(60px);opacity:0;
+  transition:all .3s;z-index:999;max-width:320px;
+}
+.toast.show { transform:translateY(0);opacity:1; }
+.toast.success { border-left:3px solid var(--lime); }
+.toast.error   { border-left:3px solid #ff4d4d; }
+.toast.info    { border-left:3px solid var(--cyan); }
+
+/* Responsive */
+@media(max-width:960px){
+  #login-screen{grid-template-columns:1fr;}
+  .login-left{display:none;}
+  .sidebar{width:180px;}
+  .main{margin-left:180px;}
+  .stats{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<!-- ══════════════ LOGIN ══════════════ -->
+<div id="login-screen">
+  <div class="login-left">
+    <canvas id="hero-canvas"></canvas>
+    <div class="login-left-content">
+      <div class="brand-logo"><span class="v">VOID</span><span class="s">·SPACE</span></div>
+      <div class="brand-tagline">3D Digital Asset Management System</div>
+      <div class="feature-pills">
+        <div class="fpill"><span class="fpill-dot"></span>Upload, review & approve 3D assets</div>
+        <div class="fpill"><span class="fpill-dot"></span>Live Three.js in-browser previewer</div>
+        <div class="fpill"><span class="fpill-dot"></span>Blender · Sketchfab · Poly Pizza APIs</div>
+        <div class="fpill"><span class="fpill-dot"></span>Multi-role Google SSO workflow</div>
+        <div class="fpill"><span class="fpill-dot"></span>EoN Reality–style XR-ready pipeline</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-right">
+    <div class="login-box">
+      <div class="role-tabs">
+        <button class="rtab active" onclick="switchRole('creator')">✏️ Creator</button>
+        <button class="rtab" onclick="switchRole('assessor')">🔍 Assessor</button>
+      </div>
+
+      <!-- Creator -->
+      <div id="lf-creator">
+        <div class="login-title">Creator Login</div>
+        <div class="login-sub">Upload and manage your 3D design assets</div>
+        <button class="btn-google" onclick="openGPop('creator')">
+          <svg class="g-icon" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          Sign in with Google
+        </button>
+        <div class="or-divider">or use email</div>
+        <div class="form-group"><label>Email</label><input id="c-em" type="email" value="alex.rivera@gmail.com" placeholder="yourname@gmail.com"/></div>
+        <div class="form-group"><label>Password</label><input id="c-pw" type="password" value="create3d" placeholder="••••••••"/></div>
+        <button class="btn-primary" onclick="emailLogin('creator')">Sign in as Creator</button>
+        <div class="hint-box"><strong>Demo:</strong> alex.rivera@gmail.com / create3d</div>
+        <div class="login-err" id="c-err">Invalid credentials.</div>
+      </div>
+
+      <!-- Assessor -->
+      <div id="lf-assessor" style="display:none">
+        <div class="login-title">Assessor Login</div>
+        <div class="login-sub">Review and approve submitted 3D assets</div>
+        <button class="btn-google" onclick="openGPop('assessor')">
+          <svg class="g-icon" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          Sign in with Google
+        </button>
+        <div class="or-divider">or use email</div>
+        <div class="form-group"><label>Email</label><input id="a-em" type="email" value="morgan.ellis@gmail.com" placeholder="yourname@gmail.com"/></div>
+        <div class="form-group"><label>Password</label><input id="a-pw" type="password" value="assess3d" placeholder="••••••••"/></div>
+        <button class="btn-primary" onclick="emailLogin('assessor')">Sign in as Assessor</button>
+        <div class="hint-box"><strong>Demo:</strong> morgan.ellis@gmail.com / assess3d</div>
+        <div class="login-err" id="a-err">Invalid credentials.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ GOOGLE POPUP ══════════════ -->
+<div class="g-overlay" id="g-overlay">
+  <div class="g-popup">
+    <div id="g-chooser">
+      <div class="g-head">
+        <div class="g-head-logo">
+          <svg width="24" height="24" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          <span>Google</span>
+        </div>
+        <h3>Choose an account</h3>
+        <p>to continue to <strong>VOID·SPACE</strong></p>
+      </div>
+      <div class="g-accounts" id="g-acc-list"></div>
+      <div class="g-add" onclick="gLoadingShow('Use another account…')">
+        <div class="g-add-ic">＋</div>
+        <span>Use another account</span>
+      </div>
+      <div class="g-foot">
+        <button class="g-cancel" onclick="closeGPop()">Cancel</button>
+      </div>
+    </div>
+    <div class="g-loading" id="g-loading">
+      <div class="g-spin"></div>
+      <div class="g-spin-txt" id="g-spin-txt">Signing in…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ APP SHELL ══════════════ -->
+<div id="app">
+  <div class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo"><span class="v">VOID</span><span class="s">·SPACE</span></div>
+      <div class="sb-role" id="sb-role-label">Creator</div>
+    </div>
+    <div class="sb-nav" id="sb-nav"></div>
+    <div class="sb-user">
+      <div class="sb-avatar" id="sb-av"></div>
+      <div class="sb-user-info">
+        <div class="sb-user-name" id="sb-uname">—</div>
+        <div class="sb-user-role" id="sb-urole">—</div>
+      </div>
+      <button class="sb-logout" onclick="logout()" title="Sign out">⏻</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- ── Dashboard ── -->
+    <div id="pg-dashboard" class="page">
+      <div class="ph">
+        <div>
+          <div class="ph-title">Dashboard <span id="dash-greeting"></span></div>
+          <div class="ph-sub" id="dash-sub">Welcome back</div>
+        </div>
+        <button class="btn-c" onclick="openUpload()" id="dash-upload-btn">+ Upload 3D Asset</button>
+      </div>
+      <div class="stats" id="dash-stats"></div>
+      <div class="ph" style="margin-top:8px">
+        <div class="ph-title" style="font-size:20px">Recent <span>Assets</span></div>
+      </div>
+      <div class="agrid" id="dash-grid"></div>
+    </div>
+
+    <!-- ── My Assets ── -->
+    <div id="pg-my-assets" class="page">
+      <div class="ph">
+        <div>
+          <div class="ph-title">My <span>3D Assets</span></div>
+          <div class="ph-sub">All assets you've uploaded to the platform</div>
+        </div>
+        <button class="btn-c" onclick="openUpload()">+ Upload Asset</button>
+      </div>
+      <div class="fbar">
+        <input placeholder="🔍  Search assets…" oninput="filterGrid(this.value,'my-grid')"/>
+        <button class="fchip active" onclick="setFilter(this,'all','my-grid')">All</button>
+        <button class="fchip" onclick="setFilter(this,'approved','my-grid')">Approved</button>
+        <button class="fchip" onclick="setFilter(this,'pending','my-grid')">Pending</button>
+        <button class="fchip" onclick="setFilter(this,'revision','my-grid')">Revision</button>
+        <button class="fchip" onclick="setFilter(this,'draft','my-grid')">Draft</button>
+      </div>
+      <div class="agrid" id="my-grid"></div>
+    </div>
+
+    <!-- ── Review Queue (assessor) ── -->
+    <div id="pg-review" class="page">
+      <div class="ph">
+        <div>
+          <div class="ph-title">Review <span>Queue</span></div>
+          <div class="ph-sub" id="queue-sub">Assets awaiting your decision</div>
+        </div>
+        <button class="btn-o" onclick="renderReview();showToast('Queue refreshed','info')">↻ Refresh</button>
+      </div>
+      <div class="stats" id="review-stats"></div>
+      <div class="rlist" id="review-list"></div>
+    </div>
+
+    <!-- ── All Assets (assessor) ── -->
+    <div id="pg-all-assets" class="page">
+      <div class="ph">
+        <div>
+          <div class="ph-title">All <span>Assets</span></div>
+          <div class="ph-sub">Platform-wide 3D asset library</div>
+        </div>
+      </div>
+      <div class="fbar">
+        <input placeholder="🔍  Search all assets…" oninput="filterGrid(this.value,'all-grid')"/>
+        <button class="fchip active" onclick="setFilter(this,'all','all-grid')">All</button>
+        <button class="fchip" onclick="setFilter(this,'approved','all-grid')">Approved</button>
+        <button class="fchip" onclick="setFilter(this,'pending','all-grid')">Pending</button>
+        <button class="fchip" onclick="setFilter(this,'rejected','all-grid')">Rejected</button>
+      </div>
+      <div class="agrid" id="all-grid"></div>
+    </div>
+
+    <!-- ── Tool Integrations ── -->
+    <div id="pg-tools" class="page">
+      <div class="ph">
+        <div>
+          <div class="ph-title">3D Tool <span>Integrations</span></div>
+          <div class="ph-sub">Free tools connected to VOID·SPACE — EoN Reality–compatible pipeline</div>
+        </div>
+      </div>
+      <div class="tools-grid" id="tools-grid"></div>
+    </div>
+
+    <!-- ── API Docs ── -->
+    <div id="pg-api" class="page">
+      <div class="api-hero">
+        <div class="api-hero-text">
+          <h2>VOID·SPACE REST API</h2>
+          <p>Integrate 3D asset creation, review workflows, and XR publishing into your tools. Compatible with Blender, Sketchfab, Poly Pizza, Three.js and EoN Reality pipelines.</p>
+        </div>
+        <div>
+          <div class="api-key-panel">
+            <div class="akey-label">Your API Key</div>
+            <div class="akey-val">
+              <span class="akey-str">vs_live_3d_xK9mNpQrLv8w2026</span>
+              <button class="copy-btn" onclick="copyKey()">Copy</button>
+            </div>
+          </div>
+          <button class="btn-c test-btn" style="width:100%;font-size:12px;padding:8px" onclick="testAPI()">⚡ Test Connection</button>
+        </div>
+      </div>
+      <div id="api-endpoints"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal-ov" id="upload-modal">
+  <div class="modal">
+    <div class="modal-h">
+      <div class="modal-title">Upload 3D Asset</div>
+      <button class="modal-x" onclick="closeUpload()">×</button>
+    </div>
+    <div class="modal-b">
+      <input type="file" id="up-file-input" style="display:none" accept=".glb,.gltf,.obj,.fbx,.stl,.blend" onchange="onFileChosen(this)"/>
+      <div class="upload-z" id="up-dropzone" onclick="document.getElementById('up-file-input').click()">
+        <div class="uz-icon">📦</div>
+        <div class="uz-text" id="up-dropzone-text"><strong>Click to browse</strong> or drag & drop<br>.glb · .gltf · .obj · .fbx · .stl · .blend — up to 200 MB</div>
+      </div>
+      <div class="form-group"><label>Asset Name</label><input id="up-name" type="text" placeholder="e.g. Sci-Fi Corridor Module v2" style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;width:100%;color:var(--text);font-family:Inter,sans-serif;font-size:13px;outline:none;"/></div>
+      <div class="form-group"><label>Category</label>
+        <select id="up-category" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:Inter,sans-serif;font-size:13px;outline:none;">
+          <option value="">Select category…</option>
+          <option>Architecture</option><option>Character</option><option>Prop / Object</option>
+          <option>Environment</option><option>Vehicle</option><option>Texture Pack</option><option>XR Scene</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Tags</label><input id="up-tags" type="text" placeholder="glTF, PBR, low-poly, XR-ready" style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;width:100%;color:var(--text);font-family:Inter,sans-serif;font-size:13px;outline:none;"/></div>
+      <div class="form-group"><label>Tool Source</label>
+        <select id="up-source" style="width:100%;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:Inter,sans-serif;font-size:13px;outline:none;">
+          <option value="blender">Blender (exported .glb)</option><option value="sketchfab">Sketchfab download</option>
+          <option value="polypizza">Poly Pizza</option><option value="threejs">Three.js constructed</option><option value="eon">EoN Reality exported</option><option value="other">Other</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-o" style="flex:1" onclick="closeUpload()">Cancel</button>
+        <button class="btn-c" style="flex:2" id="up-submit-btn" onclick="submitUpload()">Upload & Send for Review</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3D Viewer Modal -->
+<div class="modal-ov" id="viewer-modal">
+  <div class="viewer-modal">
+    <div class="vm-head">
+      <div style="font-family:Syne,sans-serif;font-size:16px;font-weight:700;color:white" id="vm-title">Asset Viewer</div>
+      <button class="modal-x" onclick="closeViewer()">×</button>
+    </div>
+    <div class="vm-canvas-wrap">
+      <canvas id="viewer-canvas"></canvas>
+    </div>
+    <div class="vm-info">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px" id="vm-tags"></div>
+      <div style="font-size:12px;color:var(--muted)" id="vm-meta"></div>
+    </div>
+    <div class="vm-btns">
+      <button class="btn-o">Download .glb</button>
+      <button class="btn-c" onclick="closeViewer()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ══════════ CONFIG & STATE ══════════
+const API_BASE = ''; // same-origin: Flask serves both frontend and /api/v1
+
+// Demo Google accounts for the mocked-SSO popup (matches backend-seeded users).
+// Selecting one calls the REAL /api/v1/auth/google endpoint with these details.
+const G_ACCOUNTS = {
+  creator: [
+    { name:'Alex Rivera',   email:'alex.rivera@gmail.com',   color:'#7c3aed', initials:'AR' },
+    { name:'Sam Chen',      email:'sam.chen@gmail.com',      color:'#0369a1', initials:'SC' },
+    { name:'Jordan Blake',  email:'jordan.blake@gmail.com',  color:'#059669', initials:'JB' },
+  ],
+  assessor: [
+    { name:'Morgan Ellis',  email:'morgan.ellis@gmail.com',  color:'#b45309', initials:'ME' },
+    { name:'Casey Park',    email:'casey.park@gmail.com',    color:'#c026d3', initials:'CP' },
+  ]
+};
+
+const TOOLS = [
+  { name:'Blender',icon:'🟠',bg:'rgba(255,107,53,.12)', type:'Open Source 3D Suite',
+    desc:'Industry-standard 3D creation suite — free and open source. Use for modeling, rigging, animation, rendering. Export directly to .glb/.gltf for VOID·SPACE.',
+    chips:['Free','Open Source','REST API'],chipTypes:['chip-free','chip-open','chip-api'],
+    endpoint:'POST /api/v1/tools/blender/export',
+    doc:'Trigger a Blender headless render or export job. Returns a .glb asset URL on completion.' },
+  { name:'Sketchfab',icon:'🟣',bg:'rgba(124,58,237,.12)', type:'3D Model Marketplace',
+    desc:'World\'s largest platform for 3D models. Import free CC-licensed assets directly into VOID·SPACE using the Sketchfab Data API v2.',
+    chips:['Free Tier','REST API','OAuth2'],chipTypes:['chip-free','chip-api','chip-api'],
+    endpoint:'GET /api/v1/tools/sketchfab/search',
+    doc:'Search and import models from Sketchfab into your VOID·SPACE library.' },
+  { name:'Poly Pizza',icon:'🍕',bg:'rgba(0,212,255,.08)', type:'Free Low-Poly Asset Library',
+    desc:'Thousands of free CC0 low-poly 3D models — perfect for XR and game environments. Pull assets directly via API with no attribution required.',
+    chips:['Free','CC0','REST API'],chipTypes:['chip-free','chip-free','chip-api'],
+    endpoint:'GET /api/v1/tools/polypizza/models',
+    doc:'Fetch CC0 low-poly models by keyword, category, or polygon count.' },
+  { name:'Three.js',icon:'⬛',bg:'rgba(255,255,255,.04)', type:'WebGL 3D Library',
+    desc:'JavaScript library for in-browser 3D rendering. Powers the VOID·SPACE built-in asset previewer.',
+    chips:['Free','Open Source','WebGL'],chipTypes:['chip-free','chip-open','chip-api'],
+    endpoint:'POST /api/v1/tools/threejs/render',
+    doc:'Server-side Three.js rendering for thumbnail generation.' },
+  { name:'Meshy AI',icon:'🤖',bg:'rgba(57,255,20,.06)', type:'AI 3D Model Generator',
+    desc:'Free-tier AI tool for generating 3D models from text prompts or images. Exports as .glb for seamless VOID·SPACE ingestion.',
+    chips:['Free Tier','AI-Powered','REST API'],chipTypes:['chip-free','chip-api','chip-api'],
+    endpoint:'POST /api/v1/tools/meshy/generate',
+    doc:'Submit a text prompt and receive a generated 3D model job.' },
+  { name:'EoN Reality',icon:'🥽',bg:'rgba(124,58,237,.1)', type:'XR Training Platform',
+    desc:'Enterprise XR platform for immersive training experiences. Push approved VOID·SPACE assets directly into EoN Reality modules via the IVR Server API.',
+    chips:['XR','Enterprise','REST API'],chipTypes:['chip-open','chip-api','chip-api'],
+    endpoint:'POST /api/v1/publish/eon-reality',
+    doc:'Push approved .glb assets to an EoN Reality IVR module.' },
+];
+
+const ENDPOINTS = [
+  { section:'Authentication', items:[
+    { m:'POST', p:'/api/v1/auth/token', d:'Generate bearer token (API key)', params:[{n:'api_key',t:'string',r:true,desc:'Your VOID·SPACE API key'},{n:'scope',t:'string',r:false,desc:'read | write | publish'}],
+      code:`POST /api/v1/auth/token\n{\n  <span class="key">"api_key"</span>: <span class="str">"vs_live_3d_xK9mNpQrLv8w2026"</span>,\n  <span class="key">"scope"</span>: <span class="str">"write publish"</span>\n}\n\n<span class="com">// 200 Response</span>\n{\n  <span class="key">"token"</span>: <span class="str">"eyJhbGci..."</span>,\n  <span class="key">"expires_in"</span>: <span class="num">3600</span>\n}` }
+  ]},
+  { section:'Assets', items:[
+    { m:'GET',  p:'/api/v1/assets', d:'List assets with filters',
+      params:[{n:'status',t:'string',r:false,desc:'pending | approved | rejected | draft | revision'},{n:'format',t:'string',r:false,desc:'glb | gltf | obj | fbx | stl'},{n:'category',t:'string',r:false,desc:'Architecture | Character | Environment | ...'},{n:'limit',t:'integer',r:false,desc:'Max results (default 20, max 200)'}],
+      code:`GET /api/v1/assets?status=approved&format=glb&limit=10\n<span class="kw">Authorization:</span> Bearer &lt;token&gt;\n\n<span class="com">// 200 Response</span>\n{\n  <span class="key">"data"</span>: [{\n    <span class="key">"id"</span>: <span class="num">1</span>,\n    <span class="key">"name"</span>: <span class="str">"Sci-Fi Corridor Module"</span>,\n    <span class="key">"format"</span>: <span class="str">"glb"</span>,\n    <span class="key">"status"</span>: <span class="str">"approved"</span>,\n    <span class="key">"ai_insights"</span>: { <span class="key">"suggested_tags"</span>: [<span class="str">"..."</span>] },\n    <span class="key">"xr_ready"</span>: <span class="num">true</span>\n  }],\n  <span class="key">"meta"</span>: { <span class="key">"total"</span>: <span class="num">8</span> }\n}` },
+    { m:'POST', p:'/api/v1/assets', d:'Upload a new 3D asset',
+      params:[{n:'file',t:'file',r:false,desc:'.glb .gltf .obj .fbx .stl .blend — max 200MB'},{n:'name',t:'string',r:true,desc:'Display name'},{n:'category',t:'string',r:true,desc:'Asset category'},{n:'tags',t:'string',r:false,desc:'Comma-separated tags'},{n:'source_tool',t:'string',r:false,desc:'blender | sketchfab | polypizza | threejs | meshy'}],
+      code:`POST /api/v1/assets\nContent-Type: multipart/form-data\n\n<span class="com">// 201 Response — AI enrichment runs asynchronously via Claude API</span>\n{\n  <span class="key">"id"</span>: <span class="str">"ast_12"</span>,\n  <span class="key">"status"</span>: <span class="str">"pending"</span>,\n  <span class="key">"asset"</span>: { <span class="com">"...full asset record..."</span> }\n}` },
+    { m:'PUT', p:'/api/v1/assets/:id/status', d:'Update approval status (Assessor only)',
+      params:[{n:'status',t:'string',r:true,desc:'approved | rejected | revision_needed'},{n:'comment',t:'string',r:false,desc:'Assessor feedback message'}],
+      code:`PUT /api/v1/assets/1/status\n{\n  <span class="key">"status"</span>: <span class="str">"approved"</span>,\n  <span class="key">"comment"</span>: <span class="str">"XR-ready. Polycount within limits."</span>\n}` },
+    { m:'POST', p:'/api/v1/assets/:id/analyze', d:'Re-run AI classification (Claude API)',
+      params:[], code:`POST /api/v1/assets/1/analyze\n\n<span class="com">// 200 Response</span>\n{\n  <span class="key">"ai_insights"</span>: {\n    <span class="key">"suggested_tags"</span>: [<span class="str">"sci-fi"</span>, <span class="str">"architecture"</span>],\n    <span class="key">"suggested_description"</span>: <span class="str">"..."</span>,\n    <span class="key">"confidence"</span>: <span class="num">0.82</span>\n  }\n}` },
+  ]},
+  { section:'Tool Integrations', items:[
+    { m:'GET',  p:'/api/v1/tools/sketchfab/search', d:'Search Sketchfab free models',
+      params:[{n:'q',t:'string',r:true,desc:'Search query'},{n:'license',t:'string',r:false,desc:'cc-by | cc0 (default: cc0)'},{n:'max_face_count',t:'integer',r:false,desc:'Polygon limit for XR use'}],
+      code:`GET /api/v1/tools/sketchfab/search?q=robot&license=cc0` },
+    { m:'GET',  p:'/api/v1/tools/polypizza/models', d:'Fetch CC0 Poly Pizza models',
+      params:[{n:'keyword',t:'string',r:false,desc:'Search term'},{n:'max_tris',t:'integer',r:false,desc:'Max triangle count'}],
+      code:`GET /api/v1/tools/polypizza/models?keyword=tree&max_tris=5000` },
+    { m:'POST', p:'/api/v1/tools/blender/export', d:'Trigger headless Blender export',
+      params:[{n:'blend_url',t:'string',r:true,desc:'URL to .blend source file'},{n:'export_format',t:'string',r:false,desc:'glb | gltf | obj'}],
+      code:`POST /api/v1/tools/blender/export\n{ <span class="key">"blend_url"</span>: <span class="str">"https://.../scene.blend"</span> }` },
+    { m:'POST', p:'/api/v1/tools/meshy/generate', d:'Generate a 3D model from a text prompt',
+      params:[{n:'prompt',t:'string',r:true,desc:'Text description of the desired model'}],
+      code:`POST /api/v1/tools/meshy/generate\n{ <span class="key">"prompt"</span>: <span class="str">"low-poly pine tree"</span> }` },
+    { m:'GET', p:'/api/v1/jobs/:job_id', d:'Poll an asynchronous job',
+      params:[], code:`GET /api/v1/jobs/job_blender_export_ab12cd34` },
+  ]},
+  { section:'Publishing', items:[
+    { m:'POST', p:'/api/v1/publish/eon-reality', d:'Publish an approved asset to EoN Reality',
+      params:[{n:'asset_id',t:'integer',r:true,desc:'Must reference an asset with status = approved'}],
+      code:`POST /api/v1/publish/eon-reality\n{ <span class="key">"asset_id"</span>: <span class="num">1</span> }\n\n<span class="com">// 409 if the asset is not approved</span>` },
+  ]},
+];
+
+let currentRole = null, currentUser = null, gpopRole = null;
+let authToken = null;
+let allAssets = [];   // platform-wide (used by assessor views + dashboard)
+let myAssets = [];    // current creator's own assets
+let selectedFile = null;
+let viewerScene = null, viewerRenderer = null, viewerAnimId = null;
+let heroRenderer = null, heroScene = null, heroAnimId = null;
+
+// ══════════ API HELPER ══════════
+async function api(path, opts = {}) {
+  const headers = Object.assign({}, opts.headers || {});
+  if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+  if (opts.json) {
+    headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(opts.json);
+  }
+  const res = await fetch(API_BASE + path, { method: opts.method || 'GET', headers, body: opts.body });
+  let data = null;
+  try { data = await res.json(); } catch (e) { /* no body */ }
+  if (!res.ok) {
+    const msg = (data && data.message) || `Request failed (${res.status})`;
+    throw new Error(msg);
+  }
+  return data;
+}
+
+function timeAgo(unixSeconds) {
+  if (!unixSeconds) return '';
+  const diff = Math.max(0, Math.floor(Date.now()/1000) - unixSeconds);
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return Math.floor(diff/60) + ' min ago';
+  if (diff < 86400) return Math.floor(diff/3600) + (Math.floor(diff/3600)===1?' hour ago':' hours ago');
+  const days = Math.floor(diff/86400);
+  return days + (days===1?' day ago':' days ago');
+}
+
+// ══════════ STARS ══════════
+function makeStars() {
+  const c = document.getElementById('stars');
+  for (let i=0;i<120;i++) {
+    const s = document.createElement('div');
+    s.className='star';
+    const sz = Math.random()*2+.5;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${Math.random()*4+2}s;--delay:${Math.random()*6}s;--op:${Math.random()*.6+.2}`;
+    c.appendChild(s);
+  }
+}
+makeStars();
+
+// ══════════ HERO THREE.JS ══════════
+function initHero() {
+  const canvas = document.getElementById('hero-canvas');
+  if (!canvas || typeof THREE === 'undefined') return;
+  const w = canvas.offsetWidth || 600;
+  const h = canvas.offsetHeight || 600;
+  heroRenderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+  heroRenderer.setSize(w,h);
+  heroRenderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  heroScene = new THREE.Scene();
+  const cam = new THREE.PerspectiveCamera(60,w/h,.1,100);
+  cam.position.set(0,0,5);
+
+  const amb = new THREE.AmbientLight(0x334466,.8);
+  heroScene.add(amb);
+  const dL = new THREE.DirectionalLight(0x00d4ff,1.5);
+  dL.position.set(3,4,3);
+  heroScene.add(dL);
+  const dL2 = new THREE.DirectionalLight(0x7c3aed,.8);
+  dL2.position.set(-3,-2,1);
+  heroScene.add(dL2);
+
+  const meshes = [];
+  const geos = [
+    new THREE.BoxGeometry(1,1,1),
+    new THREE.SphereGeometry(.6,16,16),
+    new THREE.CylinderGeometry(.4,.6,1,8),
+    new THREE.TorusGeometry(.5,.18,10,20),
+    new THREE.OctahedronGeometry(.7),
+  ];
+  const positions = [[-2.5,0.5,0],[2.2,-.8,-.5],[0,1.8,-.8],[-1,-.8,.3],[1.2,1.2,.2]];
+  geos.forEach((g,i)=>{
+    const m = new THREE.MeshPhongMaterial({
+      color:new THREE.Color([0x00d4ff,0x7c3aed,0xff6b35,0x39ff14,0xa78bfa][i]),
+      wireframe:i%2===1,
+      transparent:true,opacity:i%2===1?.5:.7,
+      shininess:80
+    });
+    const mesh = new THREE.Mesh(g,m);
+    mesh.position.set(...positions[i]);
+    mesh.userData={ox:positions[i][0],oy:positions[i][1],spd:Math.random()*.5+.3,ph:Math.random()*Math.PI*2};
+    heroScene.add(mesh);
+    meshes.push(mesh);
+  });
+
+  let t=0;
+  function animate(){
+    heroAnimId=requestAnimationFrame(animate);
+    t+=.008;
+    meshes.forEach((m,i)=>{
+      m.rotation.x+=.006*(i%2===0?1:-1);
+      m.rotation.y+=.009;
+      m.position.y=m.userData.oy+Math.sin(t*m.userData.spd+m.userData.ph)*.25;
+    });
+    heroRenderer.render(heroScene,cam);
+  }
+  animate();
+}
+
+// ══════════ GOOGLE POPUP (mocked chooser -> real /auth/google call) ══════════
+function openGPop(role) {
+  gpopRole = role;
+  const accs = G_ACCOUNTS[role]||[];
+  document.getElementById('g-acc-list').innerHTML = accs.map((a,i)=>`
+    <div class="g-acc" onclick="selectGAcc(${i})">
+      <div class="g-av" style="background:${a.color}">${a.initials}</div>
+      <div><div class="g-acc-name">${a.name}</div><div class="g-acc-email">${a.email}</div></div>
+    </div>`).join('');
+  document.getElementById('g-chooser').style.display='block';
+  document.getElementById('g-loading').classList.remove('show');
+  document.getElementById('g-overlay').classList.add('open');
+}
+function closeGPop() { document.getElementById('g-overlay').classList.remove('open'); }
+async function selectGAcc(i) {
+  const acc = G_ACCOUNTS[gpopRole][i];
+  gLoadingShow(`Signing in as ${acc.name}…`);
+  try {
+    const resp = await api('/api/v1/auth/google', { method:'POST', json:{ email:acc.email, name:acc.name, role:gpopRole } });
+    authToken = resp.token;
+    setTimeout(()=>{ closeGPop(); launchApp(gpopRole, resp.user); }, 900);
+  } catch(e) {
+    closeGPop();
+    showToast('Google sign-in failed: '+e.message, 'error');
+  }
+}
+function gLoadingShow(msg) {
+  document.getElementById('g-chooser').style.display='none';
+  document.getElementById('g-spin-txt').textContent = msg;
+  document.getElementById('g-loading').classList.add('show');
+}
+document.getElementById('g-overlay').addEventListener('click',function(e){if(e.target===this)closeGPop();});
+
+// ══════════ EMAIL LOGIN ══════════
+function switchRole(role) {
+  document.querySelectorAll('.rtab').forEach((t,i)=>t.classList.toggle('active',['creator','assessor'][i]===role));
+  ['creator','assessor'].forEach(r=>{ document.getElementById('lf-'+r).style.display=r===role?'block':'none'; });
+}
+async function emailLogin(role) {
+  const em = document.getElementById(role==='creator'?'c-em':'a-em').value;
+  const pw = document.getElementById(role==='creator'?'c-pw':'a-pw').value;
+  const err = document.getElementById(role==='creator'?'c-err':'a-err');
+  err.style.display='none';
+  try {
+    const resp = await api('/api/v1/auth/login', { method:'POST', json:{ email:em, password:pw } });
+    authToken = resp.token;
+    launchApp(resp.user.role, resp.user);
+  } catch(e) {
+    err.textContent = e.message || 'Invalid credentials.';
+    err.style.display='block';
+  }
+}
+
+// ══════════ LAUNCH APP ══════════
+async function launchApp(role, user) {
+  currentRole = role;
+  currentUser = user;
+  if(heroAnimId) cancelAnimationFrame(heroAnimId);
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+
+  const av = document.getElementById('sb-av');
+  av.textContent = user.initials;
+  av.style.background = user.color;
+  document.getElementById('sb-uname').textContent = user.name;
+  document.getElementById('sb-urole').textContent = role.charAt(0).toUpperCase()+role.slice(1);
+  document.getElementById('sb-role-label').textContent = role.charAt(0).toUpperCase()+role.slice(1);
+
+  const nav = document.getElementById('sb-nav');
+  const creatorNav = [
+    {id:'pg-dashboard',icon:'⬡',label:'Dashboard'},
+    {id:'pg-my-assets',icon:'📦',label:'My Assets'},
+    {id:'pg-tools',icon:'🔧',label:'3D Tools'},
+    {id:'pg-api',icon:'⚡',label:'API Docs'},
+  ];
+  const assessorNav = [
+    {id:'pg-dashboard',icon:'⬡',label:'Dashboard'},
+    {id:'pg-review',icon:'🔍',label:'Review Queue'},
+    {id:'pg-all-assets',icon:'📚',label:'All Assets'},
+    {id:'pg-tools',icon:'🔧',label:'3D Tools'},
+    {id:'pg-api',icon:'⚡',label:'API Docs'},
+  ];
+  const items = role==='creator'?creatorNav:assessorNav;
+  nav.innerHTML = `<div class="sb-section-label">Navigation</div>` +
+    items.map(it=>`<button class="sb-item" id="nav-${it.id}" onclick="switchPage('${it.id}')">
+      <span class="icon">${it.icon}</span>${it.label}
+      ${it.badge?`<span class="sb-badge">${it.badge}</span>`:''}
+    </button>`).join('');
+
+  renderTools();
+  renderAPI();
+  await refreshAll();
+  switchPage('pg-dashboard');
+}
+
+async function refreshAll() {
+  try {
+    if (currentRole === 'creator') {
+      const resp = await api(`/api/v1/assets?creator_id=${currentUser.id}&limit=200`);
+      myAssets = resp.data;
+      allAssets = myAssets;
+    } else {
+      const resp = await api('/api/v1/assets?limit=200');
+      allAssets = resp.data;
+      myAssets = allAssets;
+    }
+  } catch(e) {
+    showToast('Failed to load assets: '+e.message, 'error');
+    allAssets = []; myAssets = [];
+  }
+  renderDashboard();
+  renderMyAssets();
+  renderReview();
+  renderAllAssets();
+}
+
+function switchPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const btn = document.getElementById('nav-'+id);
+  if(btn) btn.classList.add('active');
+  if (id==='pg-review') {
+    const badge = document.getElementById('nav-pg-review');
+  }
+}
+
+function logout() {
+  if(viewerAnimId) { cancelAnimationFrame(viewerAnimId); viewerAnimId=null; }
+  if(viewerRenderer) { viewerRenderer.dispose(); viewerRenderer=null; }
+  authToken = null; currentUser = null; currentRole = null;
+  allAssets = []; myAssets = [];
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='grid';
+  initHero();
+}
+
+// ══════════ RENDER PAGES ══════════
+function statusPill(s) {
+  const map={approved:'sp-approved Approved',pending:'sp-pending Pending',rejected:'sp-rejected Rejected',revision:'sp-revision Revision',draft:'sp-draft Draft'};
+  const [cls,lbl]=(map[s]||'sp-draft Draft').split(' ');
+  return `<span class="spill ${cls}">${lbl}</span>`;
+}
+
+function aiInsightBlock(a) {
+  if (!a.ai_insights) return '';
+  const ai = a.ai_insights;
+  const flags = (ai.quality_flags||[]).map(f=>`<span class="atag" style="border-color:#ff6b35;color:#ff6b35">⚠ ${f.replace(/_/g,' ')}</span>`).join('');
+  return `<div style="font-size:11px;padding:7px 10px;background:rgba(0,212,255,.05);border-left:2px solid var(--cyan);border-radius:0 4px 4px 0;color:var(--muted);margin-bottom:8px">
+    <strong style="color:var(--cyan)">✨ AI suggests:</strong> ${ai.suggested_description || ''}
+    ${flags?`<div style="margin-top:5px;display:flex;gap:6px;flex-wrap:wrap">${flags}</div>`:''}
+  </div>`;
+}
+
+function assetCard(a, showActions=false) {
+  return `
+  <div class="acard" data-status="${a.status}" data-name="${a.name.toLowerCase()}" onclick="openViewer(${a.id})">
+    <div class="a-viewer">
+      <div class="a-viewer-placeholder" style="background:var(--void)">
+        <canvas id="mini-${a.id}" style="position:absolute;inset:0;width:100%;height:100%"></canvas>
+        <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+          <span class="a3d-icon" style="filter:drop-shadow(0 0 14px ${a.color}88)">${a.icon}</span>
+          <span class="a3d-label">.${a.format} · ${(a.category||'').toUpperCase()}</span>
+        </div>
+      </div>
+      <div class="status-abs">${statusPill(a.status)}</div>
+    </div>
+    <div class="a-body">
+      <div class="a-name">${a.name}</div>
+      <div class="a-meta">${timeAgo(a.created_at)} · by ${a.creator}</div>
+      <div class="a-tags">${a.tags.map(t=>`<span class="atag">${t}</span>`).join('')}</div>
+      ${a.comment?`<div style="font-size:11px;padding:7px 10px;background:rgba(255,255,255,.03);border-left:2px solid ${a.status==='approved'?'var(--lime)':a.status==='rejected'?'#ff4d4d':'var(--ember)'};border-radius:0 4px 4px 0;color:var(--muted);margin-bottom:8px">${a.comment}</div>`:''}
+      ${aiInsightBlock(a)}
+      <div class="a-foot">
+        <div class="a-creator">
+          <div class="a-mini-av">${a.creator.split(' ').map(w=>w[0]).join('')}</div>
+          <span class="a-creator-n">${a.creator}</span>
+        </div>
+        <div style="display:flex;gap:6px">
+          ${showActions && a.status==='pending'?`<button class="btn-sm btn-approve" onclick="event.stopPropagation();doReview(${a.id},'approved')">✓</button><button class="btn-sm btn-reject" onclick="event.stopPropagation();doReview(${a.id},'rejected')">✕</button>`:''}
+          <button class="btn-sm" style="background:rgba(0,212,255,.1);color:var(--cyan)" onclick="event.stopPropagation();openViewer(${a.id})">3D ▶</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderDashboard() {
+  const isCreator = currentRole==='creator';
+  document.getElementById('dash-greeting').innerHTML = `<span>Overview</span>`;
+  document.getElementById('dash-sub').textContent = `Welcome back, ${currentUser.name}`;
+  document.getElementById('dash-upload-btn').style.display = isCreator?'':'none';
+
+  const source = isCreator ? myAssets : allAssets;
+  const approved = source.filter(a=>a.status==='approved').length;
+  const pending = source.filter(a=>a.status==='pending').length;
+
+  const statsEl = document.getElementById('dash-stats');
+  if(isCreator){
+    statsEl.innerHTML=`
+      <div class="stat-c" style="--accent-color:var(--cyan)"><div class="stat-n">${source.length}</div><div class="stat-l">My Assets</div></div>
+      <div class="stat-c" style="--accent-color:var(--lime)"><div class="stat-n">${approved}</div><div class="stat-l">Approved</div></div>
+      <div class="stat-c" style="--accent-color:var(--ember)"><div class="stat-n">${pending}</div><div class="stat-l">Pending Review</div></div>
+      <div class="stat-c" style="--accent-color:var(--violet)"><div class="stat-n">${source.filter(a=>a.status==='revision').length}</div><div class="stat-l">Need Revision</div></div>`;
+  } else {
+    statsEl.innerHTML=`
+      <div class="stat-c" style="--accent-color:var(--ember)"><div class="stat-n">${pending}</div><div class="stat-l">Awaiting Review</div></div>
+      <div class="stat-c" style="--accent-color:var(--lime)"><div class="stat-n">${approved}</div><div class="stat-l">Approved Total</div></div>
+      <div class="stat-c" style="--accent-color:var(--cyan)"><div class="stat-n">${source.length}</div><div class="stat-l">All Assets</div></div>
+      <div class="stat-c" style="--accent-color:var(--violet)"><div class="stat-n">2.1d</div><div class="stat-l">Avg Review Time</div></div>`;
+  }
+  const showA = source.slice(0, isCreator?4:6);
+  document.getElementById('dash-grid').innerHTML = showA.map(a=>assetCard(a,!isCreator)).join('');
+  setTimeout(()=>showA.forEach(a=>initMiniViewer(a)),100);
+}
+
+function renderMyAssets() {
+  document.getElementById('my-grid').innerHTML = myAssets.map(a=>assetCard(a)).join('');
+  setTimeout(()=>myAssets.forEach(a=>initMiniViewer(a)),100);
+}
+
+function renderReview() {
+  const pending = allAssets.filter(a=>a.status==='pending');
+  document.getElementById('queue-sub').textContent=`${pending.length} asset${pending.length!==1?'s':''} awaiting your decision`;
+  document.getElementById('review-stats').innerHTML=`
+    <div class="stat-c" style="--accent-color:var(--ember)"><div class="stat-n">${pending.length}</div><div class="stat-l">In Queue</div></div>
+    <div class="stat-c" style="--accent-color:var(--lime)"><div class="stat-n">${allAssets.filter(a=>a.status==='approved').length}</div><div class="stat-l">Approved</div></div>
+    <div class="stat-c" style="--accent-color:#ff4d4d"><div class="stat-n">${allAssets.filter(a=>a.status==='rejected').length}</div><div class="stat-l">Rejected</div></div>
+    <div class="stat-c" style="--accent-color:var(--violet)"><div class="stat-n">${allAssets.filter(a=>a.status==='revision').length}</div><div class="stat-l">Revision</div></div>`;
+  document.getElementById('review-list').innerHTML = pending.map(a=>`
+    <div class="ritem">
+      <div class="r-thumb" style="background:linear-gradient(135deg,${a.color}22,var(--void))">${a.icon}</div>
+      <div class="r-info">
+        <div class="r-name">${a.name}</div>
+        <div class="r-detail">By ${a.creator} · ${timeAgo(a.created_at)} · ${a.category} · Tags: ${a.tags.join(', ')}</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+          ${statusPill(a.status)}
+          <span style="font-size:11px;color:var(--muted)">${a.xr_ready?'🥽 XR-ready':''}</span>
+        </div>
+        ${aiInsightBlock(a)}
+      </div>
+      <div class="r-actions">
+        <button class="btn-sm btn-approve" onclick="doReview(${a.id},'approved')">✓ Approve</button>
+        <button class="btn-sm btn-revise"  onclick="doReview(${a.id},'revision')">↺ Revise</button>
+        <button class="btn-sm btn-reject"  onclick="doReview(${a.id},'rejected')">✕ Reject</button>
+        <button class="btn-sm" style="background:rgba(0,212,255,.08);color:var(--cyan);margin-top:4px" onclick="openViewer(${a.id})">3D Preview ▶</button>
+      </div>
+    </div>`).join('')||'<div style="text-align:center;padding:48px;color:var(--muted)">🎉 Queue is empty — all caught up!</div>';
+}
+
+function renderAllAssets() {
+  document.getElementById('all-grid').innerHTML = allAssets.map(a=>assetCard(a,true)).join('');
+  setTimeout(()=>allAssets.forEach(a=>initMiniViewer(a)),100);
+}
+
+function renderTools() {
+  document.getElementById('tools-grid').innerHTML = TOOLS.map(t=>`
+    <div class="tool-card">
+      <div class="tc-head">
+        <div class="tc-icon" style="background:${t.bg}">${t.icon}</div>
+        <div><div class="tc-name">${t.name}</div><div class="tc-type">${t.type}</div></div>
+      </div>
+      <div class="tc-desc">${t.desc}</div>
+      <div class="tc-chips">${t.chips.map((c,i)=>`<span class="tc-chip ${t.chipTypes[i]}">${c}</span>`).join('')}</div>
+      <code style="display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cyan);background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:5px;padding:7px 10px;margin-bottom:12px">${t.endpoint}</code>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px">${t.doc}</div>
+      <button class="btn-o tc-btn" onclick="switchPage('pg-api')">View Integration Docs</button>
+    </div>`).join('');
+}
+
+function renderAPI() {
+  document.getElementById('api-endpoints').innerHTML = ENDPOINTS.map(sec=>`
+    <div class="ep-section">
+      <div class="ep-heading">${sec.section}</div>
+      ${sec.items.map(ep=>`
+        <div class="ep-card">
+          <div class="ep-header" onclick="toggleEP(this)">
+            <span class="meth ${ep.m}">${ep.m}</span>
+            <span class="ep-path">${ep.p}</span>
+            <span class="ep-desc">${ep.d}</span>
+            <span class="ep-chevron">▾</span>
+          </div>
+          <div class="ep-body">
+            ${ep.params && ep.params.length?`<table class="param-tbl">
+              <tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr>
+              ${ep.params.map(p=>`<tr><td class="pn">${p.n}</td><td class="pt">${p.t}</td><td class="pr">${p.r?'✓':'—'}</td><td style="font-size:11px;color:var(--muted)">${p.desc}</td></tr>`).join('')}
+            </table>`:''}
+            <div class="code-block"><pre>${ep.code}</pre></div>
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+// ══════════ MINI 3D VIEWERS ══════════
+const miniViewers = {};
+function initMiniViewer(asset) {
+  const canvas = document.getElementById('mini-'+asset.id);
+  if(!canvas || miniViewers[asset.id] || typeof THREE==='undefined') return;
+  const w=canvas.offsetWidth||260, h=canvas.offsetHeight||160;
+  const renderer = new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  renderer.setSize(w,h);
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+  const scene = new THREE.Scene();
+  const cam = new THREE.PerspectiveCamera(50,w/h,.1,100);
+  cam.position.set(0,0,2.5);
+  scene.add(new THREE.AmbientLight(0x334466,1));
+  const dL = new THREE.DirectionalLight(new THREE.Color(asset.color),2);
+  dL.position.set(2,3,2); scene.add(dL);
+  scene.add(new THREE.DirectionalLight(0xffffff,.4));
+
+  const geoMap = {
+    box:new THREE.BoxGeometry(1,1,1),
+    sphere:new THREE.SphereGeometry(.7,20,20),
+    capsule:new THREE.CylinderGeometry(.35,.35,1.2,12),
+    pyramid:new THREE.ConeGeometry(.7,1.2,6),
+    cylinder:new THREE.CylinderGeometry(.5,.6,.9,10),
+    torus:new THREE.TorusGeometry(.55,.2,12,24),
+  };
+  const geo = geoMap[asset.shape]||geoMap.box;
+  const mat = new THREE.MeshPhongMaterial({color:new THREE.Color(asset.color),shininess:80,transparent:true,opacity:.85});
+  const mesh = new THREE.Mesh(geo,mat);
+  scene.add(mesh);
+
+  const wfMat = new THREE.MeshBasicMaterial({color:new THREE.Color(asset.color),wireframe:true,transparent:true,opacity:.2});
+  scene.add(new THREE.Mesh(geo,wfMat));
+
+  let af;
+  function animate(){
+    af=requestAnimationFrame(animate);
+    mesh.rotation.y+=.012;
+    mesh.rotation.x+=.005;
+    renderer.render(scene,cam);
+  }
+  animate();
+  miniViewers[asset.id]={renderer,af};
+}
+
+// ══════════ 3D VIEWER MODAL ══════════
+function openViewer(id) {
+  const a = allAssets.find(x=>x.id===id) || myAssets.find(x=>x.id===id);
+  if(!a) return;
+  document.getElementById('vm-title').textContent = a.name;
+  document.getElementById('vm-tags').innerHTML = a.tags.map(t=>`<span class="atag">${t}</span>`).join('') + statusPill(a.status);
+  document.getElementById('vm-meta').innerHTML = `${a.category} · Uploaded ${timeAgo(a.created_at)} · by ${a.creator}` + (a.ai_insights?`<div style="margin-top:8px">${aiInsightBlock(a)}</div>`:'');
+  document.getElementById('viewer-modal').classList.add('open');
+  setTimeout(()=>startViewerCanvas(a),80);
+}
+function closeViewer() {
+  document.getElementById('viewer-modal').classList.remove('open');
+  if(viewerAnimId){ cancelAnimationFrame(viewerAnimId); viewerAnimId=null; }
+  if(viewerRenderer){ viewerRenderer.dispose(); viewerRenderer=null; }
+}
+
+function startViewerCanvas(a) {
+  if(viewerAnimId){ cancelAnimationFrame(viewerAnimId); viewerAnimId=null; }
+  if(viewerRenderer){ viewerRenderer.dispose(); viewerRenderer=null; }
+
+  const canvas = document.getElementById('viewer-canvas');
+  const w=canvas.offsetWidth||700, h=canvas.offsetHeight||400;
+  viewerRenderer = new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+  viewerRenderer.setSize(w,h);
+  viewerRenderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  viewerRenderer.setClearColor(0x050816,1);
+
+  viewerScene = new THREE.Scene();
+  const cam = new THREE.PerspectiveCamera(50,w/h,.1,100);
+  cam.position.set(0,0,3);
+
+  const grid = new THREE.GridHelper(6,12,new THREE.Color(a.color).multiplyScalar(.2),new THREE.Color(a.color).multiplyScalar(.1));
+  grid.position.y=-1.2;
+  viewerScene.add(grid);
+
+  viewerScene.add(new THREE.AmbientLight(0x222244,.8));
+  const mainL = new THREE.DirectionalLight(new THREE.Color(a.color),2.5);
+  mainL.position.set(3,4,3); viewerScene.add(mainL);
+  const fillL = new THREE.DirectionalLight(0x7c3aed,.6);
+  fillL.position.set(-3,-2,1); viewerScene.add(fillL);
+  viewerScene.add(new THREE.DirectionalLight(0xffffff,.3));
+
+  const geoMap={box:new THREE.BoxGeometry(1.4,1.4,1.4),sphere:new THREE.SphereGeometry(1,32,32),capsule:new THREE.CylinderGeometry(.5,.5,1.8,16),pyramid:new THREE.ConeGeometry(1,1.6,8),cylinder:new THREE.CylinderGeometry(.7,.85,1.4,14),torus:new THREE.TorusGeometry(.85,.3,16,32)};
+  const geo = geoMap[a.shape]||geoMap.box;
+  const mat = new THREE.MeshPhongMaterial({color:new THREE.Color(a.color),shininess:100});
+  const mesh = new THREE.Mesh(geo,mat);
+  viewerScene.add(mesh);
+  const wf = new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:new THREE.Color(a.color),wireframe:true,transparent:true,opacity:.15}));
+  viewerScene.add(wf);
+
+  let isDrag=false,lastX=0,lastY=0,rotX=0,rotY=0;
+  canvas.addEventListener('mousedown',e=>{isDrag=true;lastX=e.clientX;lastY=e.clientY;});
+  canvas.addEventListener('mousemove',e=>{ if(!isDrag)return; rotY+=(e.clientX-lastX)*.01; rotX+=(e.clientY-lastY)*.01; lastX=e.clientX;lastY=e.clientY; });
+  canvas.addEventListener('mouseup',()=>isDrag=false);
+  canvas.addEventListener('mouseleave',()=>isDrag=false);
+
+  function animate(){
+    viewerAnimId=requestAnimationFrame(animate);
+    if(!isDrag){ rotY+=.008; }
+    mesh.rotation.y=rotY; mesh.rotation.x=rotX;
+    wf.rotation.y=rotY; wf.rotation.x=rotX;
+    viewerRenderer.render(viewerScene,cam);
+  }
+  animate();
+}
+
+// ══════════ ACTIONS ══════════
+async function doReview(id, status) {
+  let comment = '';
+  if (status === 'rejected' || status === 'revision') {
+    comment = prompt(status==='rejected' ? 'Reason for rejection (optional):' : 'Feedback for the creator (optional):') || '';
+  }
+  try {
+    const updated = await api(`/api/v1/assets/${id}/status`, { method:'PUT', json:{ status, comment } });
+    const msgs={approved:`✓ "${updated.name}" approved!`,rejected:`✕ "${updated.name}" rejected.`,revision:`↺ Revision requested for "${updated.name}"`};
+    const types={approved:'success',rejected:'error',revision:'info'};
+    showToast(msgs[status]||'Status updated', types[status]||'info');
+    await refreshAll();
+  } catch(e) {
+    showToast('Could not update status: '+e.message, 'error');
+  }
+}
+
+function filterGrid(q,gridId) {
+  document.querySelectorAll(`#${gridId} .acard`).forEach(c=>{
+    c.style.display=c.dataset.name.includes(q.toLowerCase())?'':'none';
+  });
+}
+function setFilter(btn,filter,gridId) {
+  btn.closest('.fbar').querySelectorAll('.fchip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll(`#${gridId} .acard`).forEach(c=>{
+    c.style.display=(filter==='all'||c.dataset.status===filter)?'':'none';
+  });
+}
+function toggleEP(h) {
+  h.classList.toggle('open');
+  h.nextElementSibling.classList.toggle('open');
+}
+
+function onFileChosen(input) {
+  selectedFile = input.files[0] || null;
+  const txt = document.getElementById('up-dropzone-text');
+  if (selectedFile) {
+    txt.innerHTML = `<strong>${selectedFile.name}</strong><br>${(selectedFile.size/1024/1024).toFixed(2)} MB — click to change`;
+  } else {
+    txt.innerHTML = `<strong>Click to browse</strong> or drag & drop<br>.glb · .gltf · .obj · .fbx · .stl · .blend — up to 200 MB`;
+  }
+}
+
+function openUpload() {
+  selectedFile = null;
+  document.getElementById('up-file-input').value = '';
+  document.getElementById('up-name').value = '';
+  document.getElementById('up-category').value = '';
+  document.getElementById('up-tags').value = '';
+  document.getElementById('up-dropzone-text').innerHTML = `<strong>Click to browse</strong> or drag & drop<br>.glb · .gltf · .obj · .fbx · .stl · .blend — up to 200 MB`;
+  document.getElementById('upload-modal').classList.add('open');
+}
+function closeUpload() { document.getElementById('upload-modal').classList.remove('open'); }
+
+async function submitUpload() {
+  const name = document.getElementById('up-name').value.trim();
+  const category = document.getElementById('up-category').value;
+  const tags = document.getElementById('up-tags').value.trim();
+  const source = document.getElementById('up-source').value;
+  if (!name) { showToast('Please enter an asset name.', 'error'); return; }
+  if (!category) { showToast('Please select a category.', 'error'); return; }
+
+  const btn = document.getElementById('up-submit-btn');
+  btn.disabled = true; btn.textContent = 'Uploading…';
+
+  const fd = new FormData();
+  fd.append('name', name);
+  fd.append('category', category);
+  fd.append('tags', tags);
+  fd.append('source_tool', source);
+  fd.append('submit_for_review', 'true');
+  if (selectedFile) fd.append('file', selectedFile);
+
+  try {
+    await api('/api/v1/assets', { method:'POST', body: fd });
+    closeUpload();
+    showToast('Asset uploaded — AI is generating suggested tags now ✨', 'success');
+    await refreshAll();
+    // A short delayed refresh picks up the async Claude API enrichment result.
+    setTimeout(refreshAll, 4000);
+  } catch(e) {
+    showToast('Upload failed: '+e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Upload & Send for Review';
+  }
+}
+document.getElementById('upload-modal').addEventListener('click',function(e){if(e.target===this)closeUpload();});
+document.getElementById('viewer-modal').addEventListener('click',function(e){if(e.target===this)closeViewer();});
+
+function copyKey() { navigator.clipboard?.writeText('vs_live_3d_xK9mNpQrLv8w2026'); showToast('API key copied!','success'); }
+async function testAPI() {
+  showToast('Connecting to VOID·SPACE API…','info');
+  try {
+    const res = await fetch(API_BASE + '/api/v1/health');
+    const data = await res.json();
+    showToast(`✓ API healthy — AI Assistant: ${data.ai_assistant}`, 'success');
+  } catch(e) {
+    showToast('✕ API connection failed: '+e.message, 'error');
+  }
+}
+
+let toastTmr;
+function showToast(msg,type='info') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast ${type} show`;
+  clearTimeout(toastTmr);
+  toastTmr=setTimeout(()=>t.classList.remove('show'),3200);
+}
+
+// ══════════ INIT ══════════
+window.addEventListener('load',()=>{
+  setTimeout(initHero,100);
+});
+</script>
+</body>
+</html>

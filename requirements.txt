@@ -1,0 +1,4 @@
+Flask>=3.0
+PyJWT>=2.7
+Werkzeug>=3.0
+requests>=2.31
